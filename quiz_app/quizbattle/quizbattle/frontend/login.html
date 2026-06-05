@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QuizBattle</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            width: 350px;
+        }
+        h1 { color: #667eea; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 QuizBattle</h1>
+        <input type="email" id="email" placeholder="Email" value="demo@quizbattle.com">
+        <input type="password" id="password" placeholder="Пароль" value="demo123">
+        <button onclick="login()">Войти</button>
+        <div id="error" style="color:red;margin-top:10px"></div>
+    </div>
+
+    <script>
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const res = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                
+                if (data.error) {
+                    document.getElementById('error').innerText = data.error;
+                } else {
+                    alert('Добро пожаловать, ' + data.user.nickname + '! Очков: ' + data.user.totalScore);
+                }
+            } catch(e) {
+                document.getElementById('error').innerText = 'Сервер не запущен!';
+            }
+        }
+    </script>
+</body>
+</html>

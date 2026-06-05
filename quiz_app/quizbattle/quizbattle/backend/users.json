@@ -1,0 +1,62 @@
+[
+  {
+    "id": "63f90996-b253-4e91-83d3-d1f6d4cc00e3",
+    "nickname": "13",
+    "email": "13",
+    "password": "$2a$10$WxYEsI1kBchNr./WzSF86um1DrY58we0J/dlS8PPbEczwFP.4xKSu",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=63f90996-b253-4e91-83d3-d1f6d4cc00e3",
+    "createdAt": "2026-05-14T01:06:12.674Z",
+    "totalScore": 298,
+    "gamesPlayed": 1,
+    "wins": 1,
+    "correctAnswers": 19
+  },
+  {
+    "id": "eda70523-6470-479c-ac0e-3c6f42dba3af",
+    "nickname": "12",
+    "email": "12",
+    "password": "$2a$10$vyQWrTqf5tCQYCSx4ZvKHunNzyd5HBuSeaMtrKiXWkx9nJl3P9QSe",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=eda70523-6470-479c-ac0e-3c6f42dba3af",
+    "createdAt": "2026-05-14T01:06:25.424Z",
+    "totalScore": 143,
+    "gamesPlayed": 1,
+    "wins": 0,
+    "correctAnswers": 9
+  },
+  {
+    "id": "ca88e3f9-aeb1-4044-96d2-03dc9c390ee6",
+    "nickname": "15",
+    "email": "15",
+    "password": "$2a$10$REP3T3nYNOU2XSWCZTLAnOEyThfziof88ICQMNPGPtZ6jQar9yBXa",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=ca88e3f9-aeb1-4044-96d2-03dc9c390ee6",
+    "createdAt": "2026-05-14T01:30:48.319Z",
+    "totalScore": 0,
+    "gamesPlayed": 0,
+    "wins": 0,
+    "correctAnswers": 0
+  },
+  {
+    "id": "a3c9b787-4d28-4c47-a98a-ac88fed69b03",
+    "nickname": "14",
+    "email": "14",
+    "password": "$2a$10$Lh92MZiUnMILZjNLjMHvse3fKsFq7N4kMBtU.hbxT/It.1GUJmlAe",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=a3c9b787-4d28-4c47-a98a-ac88fed69b03",
+    "createdAt": "2026-05-28T21:51:10.445Z",
+    "totalScore": 0,
+    "gamesPlayed": 0,
+    "wins": 0,
+    "correctAnswers": 0
+  },
+  {
+    "id": "cfd1a392-90a5-4813-9d21-e4ca00eba241",
+    "nickname": "13",
+    "email": "13@q.q",
+    "password": "$2a$10$Wf//UnsunGSH7rBYZ1qEXOshiQ.o7w7rw25/5FoAzUgtwHx2BgiWa",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=cfd1a392-90a5-4813-9d21-e4ca00eba241",
+    "createdAt": "2026-05-28T22:10:36.282Z",
+    "totalScore": 0,
+    "gamesPlayed": 0,
+    "wins": 0,
+    "correctAnswers": 0
+  }
+]

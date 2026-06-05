@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizBattle - Мультиплеерная викторина</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2, h3 {
+            color: #667eea;
+            margin-bottom: 16px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .room-card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 16px;
+            transition: box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .room-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .question-area {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .option {
+            width: 100%;
+            padding: 18px 20px;
+            margin: 12px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            border: 2px solid #667eea;
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .option:hover:not(:disabled) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .option:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .timer-bar {
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #f39c12, #e74c3c);
+            transition: width 0.1s linear;
+            border-radius: 6px;
+        }
+
+        .player-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 5px 0;
+            border-bottom: 1px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .current-player {
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            border-left: 4px solid #667eea;
+            font-weight: bold;
+        }
+
+        .score-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .notification {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            z-index: 1000;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: fadeInOut 2.5s ease forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); visibility: hidden; }
+        }
+
+        .question-text {
+            font-size: 28px;
+            color: #2c3e50;
+            margin: 20px 0;
+            line-height: 1.4;
+        }
+
+        .question-number {
+            font-size: 18px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+            }
+            .rooms-grid {
+                grid-template-columns: 1fr;
+            }
+            .option {
+                font-size: 14px;
+                padding: 14px;
+            }
+            .question-text {
+                font-size: 20px;
+            }
+            .notification {
+                white-space: normal;
+                text-align: center;
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script>
+        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+        let token = localStorage.getItem('quiz_token');
+        let user = null;
+        let socket = null;
+        let currentRoomId = null;
+        let currentView = 'login';
+        
+        let isReady = false;
+        let currentQuestion = null;
+        let timeLeft = 0;
+        let timerInterval = null;
+        let players = [];
+        let currentRoomData = null;
+        let hasAnswered = false;
+        let scoreUpdateInterval = null;
+        
+        const API_URL = 'http://localhost:3001';
+
+        // ========== УВЕДОМЛЕНИЯ ==========
+        function showToast(message, isError = false) {
+            const oldToasts = document.querySelectorAll('.notification');
+            oldToasts.forEach(toast => toast.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = 'notification';
+            toast.style.background = isError ? '#e74c3c' : '#27ae60';
+            toast.innerText = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast && toast.remove) toast.remove();
+            }, 2500);
+        }
+
+        // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
+        function render() {
+            if (!user) {
+                renderLogin();
+            } else {
+                if (currentView === 'lobby') {
+                    renderLobby();
+                } else if (currentView === 'room') {
+                    renderRoom();
+                } else if (currentView === 'game') {
+                    renderGame();
+                } else if (currentView === 'results') {
+                }
+            }
+        }
+
+        // ========== СТРАНИЦА ВХОДА ==========
+        function renderLogin() {
+            document.getElementById('app').innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+                    <div class="card" style="max-width: 400px; width: 100%;">
+                        <h1 style="text-align: center;">🎮 QuizBattle</h1>
+                        <div id="loginForm">
+                            <input type="email" id="email" placeholder="Email" value="Player@gmail.com">
+                            <input type="password" id="password" placeholder="Пароль" value="Player">
+                            <button onclick="window.login()">Войти</button>
+                            <button onclick="window.showRegister()" style="background: #666; margin-top: 10px;">Регистрация</button>
+                            <div id="authError" style="color: red; margin-top: 10px; text-align: center;"></div>
+                        </div>
+                        <div id="registerForm" style="display: none;">
+                            <input type="text" id="regNickname" placeholder="Никнейм">
+                            <input type="email" id="regEmail" placeholder="Email">
+                            <input type="password" id="regPassword" placeholder="Пароль">
+                            <button onclick="window.register()">Зарегистрироваться</button>
+                            <button onclick="window.showLoginForm()" style="background: #666; margin-top: 10px;">Назад ко входу</button>
+                            <div id="regError" style="color: red; margin-top: 10px; text-align: center;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.login = async function() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!email) {
+                document.getElementById('authError').innerText = 'Введите email';
+                return;
+            }
+            if (!password) {
+                document.getElementById('authError').innerText = 'Введите пароль';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                
+                if (data.error) {
+                    document.getElementById('authError').innerText = data.error;
+                } else {
+                    token = data.token;
+                    user = data.user;
+                    localStorage.setItem('quiz_token', token);
+                    localStorage.setItem('quiz_user', JSON.stringify(user));
+                    currentView = 'lobby';
+                    render();
+                    loadRooms();
+                    loadLeaderboard();
+                    setInterval(loadRooms, 5000);
+                }
+            } catch(e) {
+                document.getElementById('authError').innerText = 'Ошибка подключения к серверу';
+            }
+        };
+
+        window.register = async function() {
+            const nickname = document.getElementById('regNickname').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            
+            // ========== КЛИЕНТСКАЯ ВАЛИДАЦИЯ ==========
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email) {
+                document.getElementById('regError').innerText = 'Введите email';
+                return;
+            }
+            if (!emailRegex.test(email)) {
+                document.getElementById('regError').innerText = 'Введите корректный email (пример: name@domain.com)';
+                return;
+            }
+            
+            // Проверка пароля
+            if (!password) {
+                document.getElementById('regError').innerText = 'Введите пароль';
+                return;
+            }
+            if (password.length < 6) {
+                document.getElementById('regError').innerText = 'Пароль должен быть не менее 6 символов';
+                return;
+            }
+            
+            if (nickname && (nickname.length < 2 || nickname.length > 20)) {
+                document.getElementById('regError').innerText = 'Никнейм должен быть от 2 до 20 символов';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nickname, email, password })
+                });
+                const data = await res.json();
+                
+                if (data.error) {
+                    document.getElementById('regError').innerText = data.error;
+                } else {
+                    token = data.token;
+                    user = data.user;
+                    localStorage.setItem('quiz_token', token);
+                    localStorage.setItem('quiz_user', JSON.stringify(user));
+                    currentView = 'lobby';
+                    render();
+                    loadRooms();
+                    loadLeaderboard();
+                    showToast('Регистрация прошла успешно!');
+                }
+            } catch(e) {
+                document.getElementById('regError').innerText = 'Ошибка регистрации';
+            }
+        };
+
+        window.showRegister = function() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        };
+
+        window.showLoginForm = function() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        };
+
+        // ========== СТРАНИЦА ЛОББИ ==========
+        async function renderLobby() {
+            document.getElementById('app').innerHTML = `
+                <div class="navbar">
+                    <div class="logo">🎮 QuizBattle</div>
+                    <div class="user-info">
+                        <img class="avatar" src="${user.avatarUrl}" alt="avatar">
+                        <span>${user.nickname}</span>
+                        <span>⭐ ${user.totalScore}</span>
+                        <button class="logout-btn" onclick="window.logout()">Выйти</button>
+                    </div>
+                </div>
+                <div class="container">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div class="card">
+                            <h2>✨ Создать игру</h2>
+                            <input type="text" id="roomName" placeholder="Название комнаты" value="Моя комната">
+                            <select id="maxPlayers">
+                                <option value="2">2 игрока</option>
+                                <option value="4" selected>4 игрока</option>
+                                <option value="6">6 игроков</option>
+                                <option value="8">8 игроков</option>
+                            </select>
+                            <select id="questionsCount">
+                                <option value="5">5 вопросов</option>
+                                <option value="10" selected>10 вопросов</option>
+                                <option value="15">15 вопросов</option>
+                            </select>
+                            <select id="timeLimit">
+                                <option value="10">10 секунд</option>
+                                <option value="20" selected>20 секунд</option>
+                                <option value="30">30 секунд</option>
+                            </select>
+                            <button onclick="window.createRoom()">🚀 Создать комнату</button>
+                        </div>
+                        <div class="card">
+                            <h2>🔑 Присоединиться по коду</h2>
+                            <input type="text" id="joinCode" placeholder="Введите код комнаты" maxlength="6" style="text-transform: uppercase">
+                            <button onclick="window.joinRoomByCode()">🔍 Присоединиться</button>
+                            <div id="joinError" style="color: red; margin-top: 10px; text-align: center;"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2>🏠 Доступные комнаты</h2>
+                        <div id="roomsList">Загрузка...</div>
+                    </div>
+                    <div class="card">
+                        <h2>🏆 Топ игроков</h2>
+                        <div id="leaderboardList">Загрузка...</div>
+                    </div>
+                </div>
+            `;
+            await loadRooms();
+            await loadLeaderboard();
+        }
+
+        async function loadRooms() {
+            try {
+                const res = await fetch(`${API_URL}/api/rooms`);
+                const rooms = await res.json();
+                const roomsDiv = document.getElementById('roomsList');
+                if (roomsDiv) {
+                    if (rooms.length === 0) {
+                        roomsDiv.innerHTML = '<p style="text-align: center; color: #666;">Нет доступных комнат. Создайте первую!</p>';
+                    } else {
+                        roomsDiv.innerHTML = `
+                            <div class="rooms-grid">
+                                ${rooms.map(room => `
+                                    <div class="room-card">
+                                        <h3>${room.name}</h3>
+                                        <p>📋 Код: ${room.code}</p>
+                                        <p>👥 ${room.playersCount}/${room.maxPlayers} игроков</p>
+                                        <p>Статус: ${room.status === 'waiting' ? 'Ожидание' : 'В игре'}</p>
+                                        <button onclick="window.joinRoomById('${room.id}')" ${room.status !== 'waiting' ? 'disabled' : ''}>
+                                            ${room.status === 'waiting' ? 'Войти в комнату' : 'Игра идет'}
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                }
+            } catch(e) {
+                console.error('Ошибка загрузки комнат:', e);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const res = await fetch(`${API_URL}/api/leaderboard`);
+                const data = await res.json();
+                const leaderboardDiv = document.getElementById('leaderboardList');
+                if (leaderboardDiv) {
+                    leaderboardDiv.innerHTML = data.map(p => `
+                        <div class="player-score">
+                            <span>${p.rank}. ${p.nickname}</span>
+                            <span>⭐ ${p.totalScore} | 🏆 ${p.wins}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        window.createRoom = async function() {
+            const name = document.getElementById('roomName').value;
+            const maxPlayers = parseInt(document.getElementById('maxPlayers').value);
+            const questionsCount = parseInt(document.getElementById('questionsCount').value);
+            const timeLimit = parseInt(document.getElementById('timeLimit').value);
+            
+            try {
+                const res = await fetch(`${API_URL}/api/rooms/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ name, maxPlayers, questionsCount, timeLimit, hostId: user.id })
+                });
+                const data = await res.json();
+                if (data.roomId) {
+                    window.joinRoomById(data.roomId);
+                } else {
+                    showToast('Ошибка создания комнаты', true);
+                }
+            } catch(e) {
+                showToast('Ошибка: ' + e.message, true);
+            }
+        };
+
+        window.joinRoomByCode = async function() {
+            const code = document.getElementById('joinCode').value.toUpperCase();
+            if (!code) {
+                document.getElementById('joinError').innerText = 'Введите код комнаты';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/api/rooms/join`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ code, userId: user.id })
+                });
+                const data = await res.json();
+                if (data.error) {
+                    document.getElementById('joinError').innerText = data.error;
+                } else if (data.roomId) {
+                    window.joinRoomById(data.roomId);
+                }
+            } catch(e) {
+                document.getElementById('joinError').innerText = 'Ошибка подключения';
+            }
+        };
+
+        window.joinRoomById = async function(roomId) {
+            currentRoomId = roomId;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/rooms/join`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ roomId, userId: user.id })
+                });
+                const data = await res.json();
+                if (data.error) {
+                    showToast(data.error, true);
+                    return;
+                }
+            } catch(e) {
+            }
+            
+            setupSocketConnection(roomId);
+        };
+
+        // ========== WEBSOCKET ==========
+        function setupSocketConnection(roomId) {
+            if (socket) {
+                socket.disconnect();
+            }
+            
+            socket = io(API_URL, { auth: { token } });
+            
+            socket.on('connect', () => {
+                console.log('✅ Socket connected');
+                socket.emit('join_room', { roomId });
+            });
+            
+            socket.on('room_state', (data) => {
+                console.log('room_state получен, очки обновлены');
+                currentRoomData = data;
+                players = data.players || [];
+                
+                const currentPlayer = players.find(p => p.userId === user.id);
+                if (currentPlayer) {
+                    isReady = currentPlayer.isReady;
+                }
+                
+                if (currentView === 'game') {
+                    updateGameScores();
+                } else {
+                    currentView = 'room';
+                    render();
+                }
+            });
+            
+            socket.on('game_starting', (data) => {
+                showToast('🎮 Игра начинается!');
+                setTimeout(() => {
+                    currentView = 'game';
+                    render();
+                    startScoreUpdateInterval();
+                }, 3000);
+            });
+            
+            socket.on('new_question', (data) => {
+                console.log('📥 ПОЛУЧЕН ВОПРОС:', data);  // ← ДОБАВИТЬ
+                console.log('correctAnswer ожидается:', data.correctAnswer);  // ← ДОБАВИТЬ
+                hasAnswered = false;
+                currentQuestion = data;
+                timeLeft = data.timeLimit;
+                
+                if (timerInterval) clearInterval(timerInterval);
+                
+                currentView = 'game';
+                render();
+                startGameTimer();
+            });
+            
+            socket.on('answer_result', (data) => {
+                console.log('📥 РЕЗУЛЬТАТ ОТ СЕРВЕРА:', data);  // ← ДОБАВИТЬ
+                const message = data.isCorrect ? `✅ Правильно! +${data.pointsEarned} очков` : `❌ Неправильно! (правильный ответ: ${data.correctAnswer + 1})`;
+                showToast(message);
+            });
+            
+            socket.on('game_over', (data) => {
+                if (timerInterval) clearInterval(timerInterval);
+                if (scoreUpdateInterval) clearInterval(scoreUpdateInterval);
+                currentView = 'results';
+                renderResults(data.results);
+            });
+            
+            socket.on('player_left', (data) => {
+                players = data.players;
+                if (currentView === 'room') render();
+            });
+        }
+
+        function startScoreUpdateInterval() {
+            if (scoreUpdateInterval) clearInterval(scoreUpdateInterval);
+            scoreUpdateInterval = setInterval(() => {
+                if (currentView === 'game' && currentRoomId && socket) {
+                    // Запрашиваем свежее состояние комнаты
+                    socket.emit('join_room', { roomId: currentRoomId });
+                } else if (currentView !== 'game') {
+                    clearInterval(scoreUpdateInterval);
+                }
+            }, 1000);
+        }
+
+        // ========== КОМНАТА ==========
+        function renderRoom() {
+            const currentPlayer = players.find(p => p.userId === user.id);
+            const isHost = currentRoomData?.hostId === user.id;
+            const allReady = players.length >= 2 && players.every(p => p.isReady === true);
+            
+            document.getElementById('app').innerHTML = `
+                <div class="navbar">
+                    <div class="logo">🎮 QuizBattle</div>
+                    <div class="user-info">
+                        <img class="avatar" src="${user.avatarUrl}" alt="avatar">
+                        <span>${user.nickname}</span>
+                        <button class="logout-btn" onclick="window.leaveRoom()">Выйти из комнаты</button>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="card">
+                        <h2>👥 Комната: ${currentRoomData?.name || 'Ожидание'}</h2>
+                        <p>📋 Код комнаты: <strong>${currentRoomData?.code || '...'}</strong></p>
+                        <div id="playersList"></div>
+                        <button id="readyBtn" style="width: 100%; margin-top: 20px;">
+                            ${currentPlayer?.isReady ? '❌ Отменить готовность' : '✅ Готов играть'}
+                        </button>
+                        ${isHost ? `
+                            <button id="startBtn" style="width: 100%; margin-top: 10px;" ${!allReady ? 'disabled' : ''}>
+                                ${players.length < 2 ? '👥 Нужно минимум 2 игрока' : (allReady ? '🚀 Начать игру' : '⏳ Ожидание готовности...')}
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            const playersDiv = document.getElementById('playersList');
+            playersDiv.innerHTML = players.map(p => `
+                <div class="player-score ${p.userId === user.id ? 'current-player' : ''}">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="${p.avatarUrl}" style="width: 40px; height: 40px; border-radius: 50%;">
+                        <span><strong>${p.nickname}</strong> ${p.userId === user.id ? '(Вы)' : ''} ${currentRoomData?.hostId === p.userId ? '👑' : ''}</span>
+                    </div>
+                    <div>${p.isReady ? '✅ Готов' : '⏳ Ожидает'}</div>
+                </div>
+            `).join('');
+            
+            const readyBtn = document.getElementById('readyBtn');
+            if (readyBtn) {
+                readyBtn.onclick = () => window.toggleReady();
+            }
+            
+            const startBtn = document.getElementById('startBtn');
+            if (startBtn) {
+                startBtn.onclick = () => window.startGame();
+            }
+        }
+
+        // ========== ИГРОВЫЕ ФУНКЦИИ ==========
+        window.toggleReady = function() {
+            if (!socket) {
+                showToast('Нет соединения с сервером!', true);
+                return;
+            }
+            if (!currentRoomId) {
+                showToast('Нет комнаты!', true);
+                return;
+            }
+            
+            const currentPlayer = players.find(p => p.userId === user.id);
+            if (!currentPlayer) {
+                showToast('Игрок не найден!', true);
+                return;
+            }
+            
+            const newReadyState = !currentPlayer.isReady;
+            socket.emit('player_ready', { roomId: currentRoomId, isReady: newReadyState });
+            showToast(newReadyState ? '✅ Вы готовы!' : '❌ Вы отменили готовность');
+        };
+
+        window.startGame = function() {
+            if (!socket) {
+                showToast('Нет соединения с сервером!', true);
+                return;
+            }
+            if (!currentRoomId) {
+                showToast('Нет комнаты!', true);
+                return;
+            }
+            
+            const allReady = players.length >= 2 && players.every(p => p.isReady);
+            if (!allReady) {
+                showToast('Не все игроки готовы!', true);
+                return;
+            }
+            
+            socket.emit('start_game', { roomId: currentRoomId });
+        };
+
+        // ========== ИГРА ==========
+        function renderGame() {
+            document.getElementById('app').innerHTML = `
+                <div class="container">
+                    <div class="game-layout">
+                        <div class="question-area">
+                            <div class="question-number">Вопрос ${currentQuestion.current}/${currentQuestion.total}</div>
+                            <div class="timer-bar">
+                                <div class="timer-fill" id="timerFill" style="width: 100%"></div>
+                            </div>
+                            <div class="question-text">${currentQuestion.text}</div>
+                            <div id="options"></div>
+                        </div>
+                        <div class="sidebar">
+                            <h3>🏆 Текущие очки</h3>
+                            <div id="gameScores"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const optionsDiv = document.getElementById('options');
+            currentQuestion.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option';
+                btn.innerText = `${String.fromCharCode(65+idx)}. ${opt}`;
+                btn.dataset.index = idx;
+                btn.onclick = () => submitAnswer(idx);
+                optionsDiv.appendChild(btn);
+            });
+            
+            updateGameScores();
+        }
+
+        function startGameTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                if (!currentQuestion || currentView !== 'game') {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                timeLeft--;
+                const percent = Math.max(0, (timeLeft / currentQuestion.timeLimit) * 100);
+                const fill = document.getElementById('timerFill');
+                if (fill) fill.style.width = `${percent}%`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.querySelectorAll('.option').forEach(btn => {
+                        btn.disabled = true;
+                    });
+                }
+            }, 1000);
+        }
+
+        function submitAnswer(answerIndex) {
+            console.log('🖱️ НАЖАТ ОТВЕТ:', answerIndex);  // ← ДОБАВИТЬ
+            console.log('Текущий вопрос:', currentQuestion);  // ← ДОБАВИТЬ
+            
+            if (hasAnswered) {
+                showToast('Вы уже ответили на этот вопрос!');
+                return;
+            }
+            if (!socket) return;
+            if (timeLeft <= 0) {
+                showToast('Время вышло!');
+                return;
+            }
+            
+            hasAnswered = true;
+            const timeSpent = currentQuestion.timeLimit - timeLeft;
+            
+            console.log('📤 ОТПРАВКА:', {  // ← ДОБАВИТЬ
+                roomId: currentRoomId,
+                answerIndex: answerIndex,
+                timeSpent: timeSpent
+            });
+            
+            const btns = document.querySelectorAll('.option');
+            btns.forEach(btn => {
+                btn.disabled = true;
+                if (parseInt(btn.dataset.index) === answerIndex) {
+                    btn.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+                }
+            });
+            
+            socket.emit('submit_answer', { 
+                roomId: currentRoomId, 
+                answerIndex, 
+                timeSpent 
+            });
+        }
+
+        function updateGameScores() {
+            const scoresDiv = document.getElementById('gameScores');
+            if (!scoresDiv) return;
+            
+            if (players && players.length > 0) {
+                const sortedPlayers = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
+                scoresDiv.innerHTML = sortedPlayers.map(p => `
+                    <div class="player-score ${p.userId === user.id ? 'current-player' : ''}">
+                        <span><strong>${p.nickname}</strong> ${p.userId === user.id ? '(Вы)' : ''}</span>
+                        <span class="score-value">⭐ ${p.score || 0}</span>
+                    </div>
+                `).join('');
+            } else {
+                scoresDiv.innerHTML = '<div style="text-align:center; color:#999;">Ожидание ответов...</div>';
+            }
+        }
+
+        // ========== РЕЗУЛЬТАТЫ ==========
+        function renderResults(results) {
+            document.getElementById('app').innerHTML = `
+                <div class="container">
+                    <div class="card" style="text-align: center;">
+                        <h1>🏆 ИТОГИ ИГРЫ 🏆</h1>
+                        <div id="resultsList"></div>
+                        <button onclick="window.backToLobby()" style="margin-top: 20px;">🏠 На главную</button>
+                    </div>
+                </div>
+            `;
+            
+            const resultsDiv = document.getElementById('resultsList');
+            const isTie = results.length >= 2 && results[0].score === results[1].score;
+            
+            resultsDiv.innerHTML = results.map((r, idx) => {
+                let medal = '';
+                let winnerText = '';
+                
+                if (idx === 0 && !isTie) {
+                    medal = '🏆';
+                    winnerText = 'ПОБЕДИТЕЛЬ!';
+                } else if (idx === 1 && !isTie) {
+                    medal = '🥈';
+                } else if (idx === 2 && !isTie) {
+                    medal = '🥉';
+                } else if (idx === 0 && isTie) {
+                    medal = '🤝';
+                    winnerText = 'НИЧЬЯ!';
+                } else if (idx === 1 && isTie) {
+                    medal = '🤝';
+                    winnerText = 'НИЧЬЯ!';
+                } else {
+                    medal = `${idx + 1}.`;
+                }
+                
+                return `
+                    <div class="player-score" style="margin: 10px 0; padding: 15px; background: ${idx === 0 ? '#ffd700' : '#f5f5f5'}; border-radius: 10px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span style="font-size: 24px;">${medal}</span>
+                            <img src="${r.avatarUrl}" style="width: 50px; height: 50px; border-radius: 50%;">
+                            <div>
+                                <strong style="font-size: 18px;">${r.nickname}</strong>
+                                <div style="color: ${idx === 0 ? '#e67e22' : '#666'};">${winnerText}</div>
+                            </div>
+                        </div>
+                        <span class="score-value" style="font-size: 24px;">⭐ ${r.score}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            if (isTie) {
+                showToast('🤝 НИЧЬЯ! Победила дружба! 🤝');
+            } else if (results[0]) {
+                showToast(`🏆 Победил ${results[0].nickname} с ${results[0].score} очками! 🏆`);
+            }
+        }
+
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+        window.leaveRoom = function() {
+            if (timerInterval) clearInterval(timerInterval);
+            if (scoreUpdateInterval) clearInterval(scoreUpdateInterval);
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            currentRoomId = null;
+            currentView = 'lobby';
+            render();
+            loadRooms();
+        };
+
+        window.backToLobby = function() {
+            if (timerInterval) clearInterval(timerInterval);
+            if (scoreUpdateInterval) clearInterval(scoreUpdateInterval);
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            currentRoomId = null;
+            currentView = 'lobby';
+            render();
+            loadRooms();
+        };
+
+        window.logout = function() {
+            if (timerInterval) clearInterval(timerInterval);
+            if (scoreUpdateInterval) clearInterval(scoreUpdateInterval);
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            localStorage.clear();
+            user = null;
+            token = null;
+            currentRoomId = null;
+            currentView = 'login';
+            render();
+        };
+
+        // ========== ЗАПУСК ==========
+        function init() {
+            if (token) {
+                const savedUser = localStorage.getItem('quiz_user');
+                if (savedUser) {
+                    try {
+                        user = JSON.parse(savedUser);
+                        currentView = 'lobby';
+                        render();
+                        loadRooms();
+                        loadLeaderboard();
+                        setInterval(loadRooms, 5000);
+                        return;
+                    } catch(e) {
+                        console.error('Ошибка загрузки пользователя:', e);
+                    }
+                }
+            }
+            render();
+        }
+        
+        init();
+    </script>
+</body>
+</html>
